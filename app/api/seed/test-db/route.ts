@@ -8,7 +8,13 @@ export async function GET() {
   
   // Mask the password in connection string for security
   let maskedUrl = 'not defined';
+  let dbUrlLength = 0;
+  let dbUrlStart = '';
+  let dbUrlEnd = '';
   if (dbUrl) {
+    dbUrlLength = dbUrl.length;
+    dbUrlStart = dbUrl.substring(0, 30);
+    dbUrlEnd = dbUrl.substring(Math.max(0, dbUrl.length - 40));
     try {
       const url = new URL(dbUrl);
       url.password = '****';
@@ -30,6 +36,9 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       maskedUrl,
+      dbUrlLength,
+      dbUrlStart,
+      dbUrlEnd,
       durationMs: duration,
       result: result,
       hasUsers: userCount.length > 0,
@@ -44,6 +53,9 @@ export async function GET() {
     return NextResponse.json({
       success: false,
       maskedUrl,
+      dbUrlLength,
+      dbUrlStart,
+      dbUrlEnd,
       error: error.message || String(error),
       stack: error.stack,
       envKeys: Object.keys(process.env).filter(key => 
