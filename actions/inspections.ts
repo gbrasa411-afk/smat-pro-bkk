@@ -2,7 +2,7 @@
 
 import { db } from '@/db';
 import { inspections, assets, checklistTemplates, assetTypes } from '@/db/schema';
-import { eq, desc, sql, and } from 'drizzle-orm';
+import { eq, desc, sql, and, gte } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import { supabase } from '@/lib/supabase';
@@ -178,7 +178,7 @@ export async function getInspectionStats() {
   const monthlyCount = await db
     .select({ count: sql<number>`count(*)` })
     .from(inspections)
-    .where(sql`${inspections.createdAt} >= ${startOfMonth}`);
+    .where(gte(inspections.createdAt, startOfMonth));
 
   return { monthlyInspections: Number(monthlyCount[0].count) };
 }
