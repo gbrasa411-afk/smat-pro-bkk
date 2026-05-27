@@ -31,7 +31,7 @@ export async function GET() {
       success: true,
       maskedUrl,
       durationMs: duration,
-      result: result.rows,
+      result: result,
       hasUsers: userCount.length > 0,
       envKeys: Object.keys(process.env).filter(key => 
         key.includes('DB') || 
