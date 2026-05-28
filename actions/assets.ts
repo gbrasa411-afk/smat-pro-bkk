@@ -137,3 +137,58 @@ export async function getAssetStats() {
     needAction: Number(needAction[0].count),
   };
 }
+
+export async function editAsset(id: string, formData: FormData) {
+  const session = await auth();
+  if (!session?.user || !['SUPER_ADMIN', 'ADMIN'].includes(session.user.role)) {
+    return { error: 'Tidak memiliki akses.' };
+  }
+
+  const name = formData.get('name') as string;
+  const categoryId = formData.get('categoryId') as string;
+  const assetTypeId = formData.get('assetTypeId') as string;
+  const location = formData.get('location') as string;
+  const plateNumber = formData.get('plateNumber') as string || null;
+  const notes = formData.get('notes') as string || null;
+
+  if (!name || !categoryId || !assetTypeId || !location) {
+    return { error: 'Data wajib diisi.' };
+  }
+
+  try {
+    await db
+      .update(assets)
+      .set({
+        name,
+        categoryId,
+        assetTypeId,
+        location,
+        plateNumber,
+        notes,
+        updatedAt: new Date(),
+      })
+      .where(eq(assets.id, id));
+
+    revalidatePath('/inventory');
+    revalidatePath(`/inventory/${id}`);
+    return { success: true };
+  } catch (e: any) {
+    return { error: 'Gagal memperbarui aset: ' + e.message };
+  }
+}
+
+export async function deleteAsset(id: string) {
+  const session = await auth();
+  if (!session?.user || !['SUPER_ADMIN', 'ADMIN'].includes(session.user.role)) {
+    return { error: 'Tidak memiliki akses.' };
+  }
+
+  try {
+    await db.update(assets).set({ isActive: false }).where(eq(assets.id, id));
+    revalidatePath('/inventory');
+    return { success: true };
+  } catch (e: any) {
+    return { error: 'Gagal menghapus aset: ' + e.message };
+  }
+}
+

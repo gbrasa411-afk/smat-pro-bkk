@@ -1,19 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  Tag,
-  FileText,
-  MapPin,
-  Car,
-  StickyNote,
-  Loader2,
-} from 'lucide-react';
+import { Tag, FileText, MapPin, Car, StickyNote, Loader2 } from 'lucide-react';
 import PageHeader from '@/components/layout/page-header';
 import { showToast } from '@/components/ui/toast';
 import { getCategoriesWithTypes } from '@/actions/categories';
-import { addAsset } from '@/actions/assets';
+import { getAssetById, editAsset } from '@/actions/assets';
 
 interface CategoryWithTypes {
   id: string;
@@ -31,14 +24,15 @@ const PREDEFINED_LOCATIONS = [
   'Rengat',
 ];
 
-export default function AddAssetPage() {
+export default function EditAssetPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
+  const { id } = use(params);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState<CategoryWithTypes[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [form, setForm] = useState({
-    assetId: '',
     name: '',
     category: '', // categoryId
     type: '',     // assetTypeId
@@ -48,18 +42,35 @@ export default function AddAssetPage() {
   });
 
   useEffect(() => {
-    async function loadCategories() {
+    async function loadData() {
       try {
-        const data = await getCategoriesWithTypes();
-        setCategories(data);
+        const [catsData, assetData] = await Promise.all([
+          getCategoriesWithTypes(),
+          getAssetById(id),
+        ]);
+        setCategories(catsData);
+
+        if (assetData) {
+          setForm({
+            name: assetData.name,
+            category: assetData.categoryId,
+            type: assetData.assetTypeId,
+            location: assetData.location || '',
+            noPolisi: assetData.plateNumber || '',
+            notes: assetData.notes || '',
+          });
+        } else {
+          showToast('error', 'Aset tidak ditemukan.');
+          router.push('/inventory');
+        }
       } catch (err) {
-        showToast('error', 'Gagal memuat kategori dari database.');
+        showToast('error', 'Gagal memuat data dari database.');
       } finally {
         setLoading(false);
       }
     }
-    loadCategories();
-  }, []);
+    loadData();
+  }, [id, router]);
 
   const selectedCategoryObj = categories.find((c) => c.id === form.category);
   const isVehicle = selectedCategoryObj?.name === 'Kendaraan';
@@ -71,14 +82,14 @@ export default function AddAssetPage() {
     const { name, value } = e.target;
     setForm((prev) => ({
       ...prev,
-      [name]: name === 'assetId' ? value.toUpperCase() : value,
+      [name]: value,
       ...(name === 'category' ? { type: '' } : {}),
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.assetId || !form.name || !form.category || !form.type || !form.location) {
+    if (!form.name || !form.category || !form.type || !form.location) {
       showToast('error', 'Mohon lengkapi semua field wajib.');
       return;
     }
@@ -87,7 +98,6 @@ export default function AddAssetPage() {
 
     try {
       const fd = new FormData();
-      fd.set('id', form.assetId);
       fd.set('name', form.name);
       fd.set('categoryId', form.category);
       fd.set('assetTypeId', form.type);
@@ -99,13 +109,13 @@ export default function AddAssetPage() {
         fd.set('notes', form.notes);
       }
 
-      const res = await addAsset(fd);
+      const res = await editAsset(id, fd);
       if (res?.success) {
-        showToast('success', 'Aset berhasil ditambahkan!');
-        router.push('/inventory');
+        showToast('success', 'Aset berhasil diperbarui!');
+        router.push(`/inventory/${id}`);
         router.refresh();
       } else {
-        showToast('error', res?.error || 'Gagal menambahkan aset.');
+        showToast('error', res?.error || 'Gagal memperbarui aset.');
       }
     } catch (err) {
       showToast('error', 'Terjadi kesalahan sistem.');
@@ -119,7 +129,7 @@ export default function AddAssetPage() {
       <div className="min-h-[50vh] flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-10 h-10 text-[#00916E] animate-spin mx-auto mb-3" />
-          <p className="text-gray-500 font-semibold text-sm">Memuat form data...</p>
+          <p className="text-gray-500 font-semibold text-sm">Memuat data aset...</p>
         </div>
       </div>
     );
@@ -127,27 +137,24 @@ export default function AddAssetPage() {
 
   return (
     <div className="pb-4">
-      <PageHeader title="Tambah Aset Baru" subtitle="Isi data peralatan baru" showBack backHref="/inventory" />
+      <PageHeader title="Edit Informasi Aset" subtitle={id} showBack backHref={`/inventory/${id}`} />
 
       <form onSubmit={handleSubmit} className="px-5 space-y-4">
-        {/* ID Peralatan */}
+        {/* ID Aset (Readonly) */}
         <div className="glass-card p-4 space-y-4">
           <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Informasi Aset</h3>
 
           <div>
             <label className="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wider">
-              ID Peralatan *
+              ID Aset (Monospace)
             </label>
             <div className="relative">
-              <Tag className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Tag className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" />
               <input
                 type="text"
-                name="assetId"
-                value={form.assetId}
-                onChange={handleChange}
-                className="input-field pl-11 font-mono uppercase"
-                placeholder="Contoh: LAB-MIC-002 atau MOB-INV-002"
-                required
+                value={id}
+                disabled
+                className="input-field pl-11 font-mono uppercase bg-gray-50 text-gray-400 cursor-not-allowed border-gray-200"
               />
             </div>
           </div>
@@ -164,7 +171,7 @@ export default function AddAssetPage() {
                 value={form.name}
                 onChange={handleChange}
                 className="input-field pl-11"
-                placeholder="Contoh: Mikroskop Olympus CX24 atau Toyota Innova"
+                placeholder="Contoh: Mikroskop Olympus CX24"
                 required
               />
             </div>
@@ -278,7 +285,7 @@ export default function AddAssetPage() {
         {/* Submit */}
         <button
           type="submit"
-          disabled={isSubmitting || !form.assetId || !form.name || !form.category || !form.type || !form.location}
+          disabled={isSubmitting || !form.name || !form.category || !form.type || !form.location}
           className="btn-primary w-full flex items-center justify-center gap-2 py-4 text-base disabled:opacity-50"
         >
           {isSubmitting ? (
@@ -287,7 +294,7 @@ export default function AddAssetPage() {
               Menyimpan...
             </>
           ) : (
-            'Simpan Aset'
+            'Simpan Perubahan'
           )}
         </button>
       </form>

@@ -182,3 +182,58 @@ export async function getInspectionStats() {
 
   return { monthlyInspections: Number(monthlyCount[0].count) };
 }
+
+export async function updateChecklistTemplate(
+  assetTypeId: string,
+  items: { label: string; category: string }[]
+) {
+  const session = await auth();
+  if (!session?.user || !['SUPER_ADMIN', 'ADMIN'].includes(session.user.role)) {
+    return { error: 'Tidak memiliki akses.' };
+  }
+
+  try {
+    const existing = await db
+      .select({ id: checklistTemplates.id })
+      .from(checklistTemplates)
+      .where(eq(checklistTemplates.assetTypeId, assetTypeId))
+      .limit(1);
+
+    if (existing[0]) {
+      await db
+        .update(checklistTemplates)
+        .set({
+          items,
+          updatedAt: new Date(),
+        })
+        .where(eq(checklistTemplates.id, existing[0].id));
+    } else {
+      await db.insert(checklistTemplates).values({
+        assetTypeId,
+        items,
+      });
+    }
+
+    return { success: true };
+  } catch (e: any) {
+    return { error: 'Gagal memperbarui checklist template: ' + e.message };
+  }
+}
+
+export async function getChecklistTemplate(assetTypeId: string) {
+  try {
+    const template = await db
+      .select({ items: checklistTemplates.items })
+      .from(checklistTemplates)
+      .where(eq(checklistTemplates.assetTypeId, assetTypeId))
+      .limit(1);
+
+    if (!template[0]) return [];
+    return template[0].items as { label: string; category: string }[];
+  } catch (e) {
+    console.error('Error fetching checklist template:', e);
+    return [];
+  }
+}
+
+

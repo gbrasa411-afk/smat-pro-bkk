@@ -11,10 +11,14 @@ import {
   ChevronRight,
   CheckCircle,
   AlertTriangle,
+  Settings,
 } from 'lucide-react';
 import PageHeader from '@/components/layout/page-header';
 import { getAssetById } from '@/actions/assets';
 import { getInspectionHistory } from '@/actions/inspections';
+import { auth } from '@/lib/auth';
+import DeleteAssetButton from '@/components/inventory/delete-button';
+
 
 function getStatusStyle(status: string) {
   switch (status) {
@@ -41,7 +45,11 @@ export default async function AssetDetailPage({
   const asset = await getAssetById(id);
   if (!asset) notFound();
 
+  const session = await auth();
+  const isAdmin = session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPER_ADMIN';
+
   const inspections = await getInspectionHistory(id, 5);
+
 
   return (
     <div className="pb-4">
@@ -113,6 +121,20 @@ export default async function AssetDetailPage({
             <ClipboardCheck className="w-5 h-5" />
             Inspeksi Sekarang
           </Link>
+
+          {isAdmin && (
+            <div className="flex gap-2">
+              <Link
+                href={`/inventory/${asset.id}/edit`}
+                className="flex-1 btn-outline w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl border border-gray-300 text-center font-semibold text-gray-700 hover:bg-gray-50 active:scale-95 transition-all text-sm"
+              >
+                Edit Aset
+              </Link>
+              <div className="flex-1">
+                <DeleteAssetButton id={asset.id} />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Recent Inspection History */}

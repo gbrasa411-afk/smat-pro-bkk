@@ -30,7 +30,9 @@ export async function getCategoriesWithTypes() {
 
 export async function addCategory(formData: FormData) {
   const session = await auth();
-  if (session?.user?.role !== 'SUPER_ADMIN') return { error: 'Hanya Super Admin.' };
+  if (session?.user?.role !== 'SUPER_ADMIN' && session?.user?.role !== 'ADMIN') {
+    return { error: 'Hanya Admin.' };
+  }
 
   const name = formData.get('name') as string;
   const icon = formData.get('icon') as string;
@@ -46,7 +48,9 @@ export async function addCategory(formData: FormData) {
 
 export async function addAssetType(formData: FormData) {
   const session = await auth();
-  if (session?.user?.role !== 'SUPER_ADMIN') return { error: 'Hanya Super Admin.' };
+  if (session?.user?.role !== 'SUPER_ADMIN' && session?.user?.role !== 'ADMIN') {
+    return { error: 'Hanya Admin.' };
+  }
 
   const name = formData.get('name') as string;
   const categoryId = formData.get('categoryId') as string;
@@ -62,7 +66,9 @@ export async function addAssetType(formData: FormData) {
 
 export async function deleteCategory(id: string) {
   const session = await auth();
-  if (session?.user?.role !== 'SUPER_ADMIN') return { error: 'Hanya Super Admin.' };
+  if (session?.user?.role !== 'SUPER_ADMIN' && session?.user?.role !== 'ADMIN') {
+    return { error: 'Hanya Admin.' };
+  }
 
   try {
     await db.delete(assetTypes).where(eq(assetTypes.categoryId, id));

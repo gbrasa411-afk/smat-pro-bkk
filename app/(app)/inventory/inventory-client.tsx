@@ -72,7 +72,7 @@ function getUrgencyBorder(urgency: 'ok' | 'yellow' | 'red') {
   }
 }
 
-export default function InventoryClient({ categories }: { categories: CategoryGroup[] }) {
+export default function InventoryClient({ categories, userRole }: { categories: CategoryGroup[]; userRole?: string }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
@@ -114,6 +114,27 @@ export default function InventoryClient({ categories }: { categories: CategoryGr
           className="input-field pl-11 text-sm"
         />
       </div>
+
+      {/* Admin Panel (if Admin or Super Admin) */}
+      {(userRole === 'ADMIN' || userRole === 'SUPER_ADMIN') && (
+        <div className="glass-card p-4 space-y-3 bg-[#E8F5F0]/40 border border-[#00916E]/15">
+          <p className="text-[10px] font-bold text-[#00916E] uppercase tracking-wider">Panel Admin Inventaris</p>
+          <div className="flex gap-2.5">
+            <Link
+              href="/inventory/add"
+              className="flex-1 btn-primary py-2.5 px-4 text-xs font-bold text-center flex items-center justify-center gap-1.5"
+            >
+              <Plus size={14} /> Tambah Aset
+            </Link>
+            <Link
+              href="/admin/categories"
+              className="flex-1 btn-secondary py-2.5 px-4 text-xs font-bold text-center flex items-center justify-center gap-1.5"
+            >
+              Kelola Kategori & Checklist
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Filter Chips */}
       <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
@@ -226,14 +247,16 @@ export default function InventoryClient({ categories }: { categories: CategoryGr
       </div>
 
       {/* FAB */}
-      <Link
-        href="/inventory/add"
-        className="fixed bottom-24 right-5 z-40 w-14 h-14 bg-[#00916E] rounded-2xl flex items-center justify-center
-                   shadow-xl shadow-[#00916E]/25 active:scale-90 transition-all duration-200 hover:bg-[#007A5C]
-                   animate-pulse-glow"
-      >
-        <Plus className="w-6 h-6 text-white" />
-      </Link>
+      {(userRole === 'ADMIN' || userRole === 'SUPER_ADMIN') && (
+        <Link
+          href="/inventory/add"
+          className="fixed bottom-24 right-5 z-40 w-14 h-14 bg-[#00916E] rounded-2xl flex items-center justify-center
+                     shadow-xl shadow-[#00916E]/25 active:scale-90 transition-all duration-200 hover:bg-[#007A5C]
+                     animate-pulse-glow"
+        >
+          <Plus className="w-6 h-6 text-white" />
+        </Link>
+      )}
     </div>
   );
 }

@@ -96,13 +96,26 @@ const CHECKLISTS: Record<string, ChecklistTemplateItem[]> = {
     { label: 'Deteksi alarm suhu tinggi (>37.5°C) berbunyi & menangkap gambar', category: 'Fungsional' },
     { label: 'Daya listrik didukung UPS cadangan', category: 'Power' },
   ],
-  'Pulse Oximeter': [
-    { label: 'Kondisi fisik alat utuh, engsel klip jari tidak patah', category: 'Fisik' },
-    { label: 'Layar LED/OLED menampilkan angka saturasi dan grafik nadi', category: 'Fisik' },
-    { label: 'Sensor inframerah menyala merah di dalam klip', category: 'Sensor' },
-    { label: 'Baterai terisi cukup & kompartemen bersih', category: 'Power' },
-    { label: 'Pengukuran saturasi oksigen (SpO2) dan nadi terbaca cepat', category: 'Performa' },
-    { label: 'Alat mati otomatis saat jari dikeluarkan (auto-off)', category: 'Fungsional' },
+  'Mobil': [
+    { label: 'Kondisi body, cat, dan kaca kendaraan bersih & utuh', category: 'Eksterior' },
+    { label: 'Kondisi spion kanan-kiri dan wiper berfungsi normal', category: 'Eksterior' },
+    { label: 'Lampu utama (jauh/dekat), sein, rem, mundur, dan hazard menyala', category: 'Kelistrikan' },
+    { label: 'Klakson berfungsi nyaring', category: 'Kelistrikan' },
+    { label: 'Level oli mesin, minyak rem, dan air radiator normal', category: 'Mesin' },
+    { label: 'Tekanan dan kondisi ban (4 roda + serep) dalam keadaan baik', category: 'Ban & Rem' },
+    { label: 'Rem kaki dan rem tangan berfungsi pakem', category: 'Ban & Rem' },
+    { label: 'AC mendinginkan kabin secara normal', category: 'Interior' },
+    { label: 'Kelengkapan P3K, APAR mini, dongkrak, dan kunci roda lengkap', category: 'Keamanan' },
+    { label: 'STNK dan pajak kendaraan masih berlaku', category: 'Dokumen' },
+  ],
+  'Sepeda Motor': [
+    { label: 'Kondisi fisik body, jok, dan kaca spion utuh & bersih', category: 'Eksterior' },
+    { label: 'Lampu utama, sein kanan-kiri, dan lampu rem menyala', category: 'Kelistrikan' },
+    { label: 'Klakson dan starter elektrik berfungsi normal', category: 'Kelistrikan' },
+    { label: 'Level oli mesin normal & tidak ada rembesan oli di mesin', category: 'Mesin' },
+    { label: 'Kondisi tapak ban depan/belakang dan ketegangan rantai baik', category: 'Roda & Suspensi' },
+    { label: 'Rem depan dan belakang berfungsi pakem', category: 'Ban & Rem' },
+    { label: 'STNK dan pajak kendaraan masih berlaku', category: 'Dokumen' },
   ],
 };
 
@@ -156,7 +169,7 @@ async function seed() {
     const insertedUsers = await db.insert(schema.users).values(usersData).returning();
     console.log(`   ✅ Created ${insertedUsers.length} users`);
 
-    // 2. Seed Categories (Peralatan Laboratorium, Peralatan Medis)
+    // 2. Seed Categories (Peralatan Laboratorium, Peralatan Medis, Kendaraan)
     console.log('📁 Creating categories...');
     const categoriesData: schema.NewCategory[] = [
       {
@@ -172,6 +185,13 @@ async function seed() {
         icon: 'HeartPulse',
         description: 'Peralatan medis penunjang pemeriksaan kesehatan dan tindakan darurat',
         sortOrder: 2,
+      },
+      {
+        id: '77777777-7777-7777-7777-777777777777',
+        name: 'Kendaraan',
+        icon: 'Car',
+        description: 'Kendaraan dinas operasional dan penunjang mobilitas kantor',
+        sortOrder: 3,
       },
     ];
 
@@ -194,6 +214,10 @@ async function seed() {
       { id: '20000000-0000-0000-0000-000000000003', categoryId: '66666666-6666-6666-6666-666666666666', name: 'Tensimeter Digital', icon: 'Heart' },
       { id: '20000000-0000-0000-0000-000000000004', categoryId: '66666666-6666-6666-6666-666666666666', name: 'Thermal Scanner', icon: 'Scan' },
       { id: '20000000-0000-0000-0000-000000000005', categoryId: '66666666-6666-6666-6666-666666666666', name: 'Pulse Oximeter', icon: 'Activity' },
+
+      // Kendaraan
+      { id: '30000000-0000-0000-0000-000000000001', categoryId: '77777777-7777-7777-7777-777777777777', name: 'Mobil', icon: 'Car' },
+      { id: '30000000-0000-0000-0000-000000000002', categoryId: '77777777-7777-7777-7777-777777777777', name: 'Sepeda Motor', icon: 'Bike' },
     ];
 
     const insertedAssetTypes = await db.insert(schema.assetTypes).values(assetTypesData).returning();
@@ -311,6 +335,104 @@ async function seed() {
         location: 'Pos Pemeriksaan Pelabuhan',
         lastStatus: 'Belum Diinspeksi', // No inspection yet -> Red highlight
         qrCode: 'MED-OXI-001',
+      },
+
+      // Kendaraan
+      {
+        id: 'MOB-INV-001',
+        name: 'Mobil Toyota Innova',
+        categoryId: '77777777-7777-7777-7777-777777777777',
+        assetTypeId: '30000000-0000-0000-0000-000000000001',
+        location: 'Tembilahan',
+        lastStatus: 'Normal',
+        lastInspectedAt: fiveDaysAgo,
+        lastInspectedBy: '33333333-3333-3333-3333-333333333333',
+        nextInspectionDue: new Date(fiveDaysAgo.getTime() + 30 * 24 * 60 * 60 * 1000),
+        qrCode: 'MOB-INV-001',
+      },
+      {
+        id: 'MOB-HAC-001',
+        name: 'Mobil Toyota Hi Ace',
+        categoryId: '77777777-7777-7777-7777-777777777777',
+        assetTypeId: '30000000-0000-0000-0000-000000000001',
+        location: 'Tembilahan',
+        lastStatus: 'Normal',
+        lastInspectedAt: fiveDaysAgo,
+        lastInspectedBy: '33333333-3333-3333-3333-333333333333',
+        nextInspectionDue: new Date(fiveDaysAgo.getTime() + 30 * 24 * 60 * 60 * 1000),
+        qrCode: 'MOB-HAC-001',
+      },
+      {
+        id: 'MOB-GMA-001',
+        name: 'Mobil Daihatsu Gran Max Ambulance',
+        categoryId: '77777777-7777-7777-7777-777777777777',
+        assetTypeId: '30000000-0000-0000-0000-000000000001',
+        location: 'Sungai Guntung',
+        lastStatus: 'Normal',
+        lastInspectedAt: fiveDaysAgo,
+        lastInspectedBy: '33333333-3333-3333-3333-333333333333',
+        nextInspectionDue: new Date(fiveDaysAgo.getTime() + 30 * 24 * 60 * 60 * 1000),
+        qrCode: 'MOB-GMA-001',
+      },
+      {
+        id: 'MOB-APV-001',
+        name: 'Mobil Suzuki APV Luxury Ambulance',
+        categoryId: '77777777-7777-7777-7777-777777777777',
+        assetTypeId: '30000000-0000-0000-0000-000000000001',
+        location: 'Tembilahan',
+        lastStatus: 'Normal',
+        lastInspectedAt: fiveDaysAgo,
+        lastInspectedBy: '33333333-3333-3333-3333-333333333333',
+        nextInspectionDue: new Date(fiveDaysAgo.getTime() + 30 * 24 * 60 * 60 * 1000),
+        qrCode: 'MOB-APV-001',
+      },
+      {
+        id: 'MOB-HLX-001',
+        name: 'Mobil Toyota Hilux Double Cabin',
+        categoryId: '77777777-7777-7777-7777-777777777777',
+        assetTypeId: '30000000-0000-0000-0000-000000000001',
+        location: 'Kuala Gaung',
+        lastStatus: 'Normal',
+        lastInspectedAt: fiveDaysAgo,
+        lastInspectedBy: '33333333-3333-3333-3333-333333333333',
+        nextInspectionDue: new Date(fiveDaysAgo.getTime() + 30 * 24 * 60 * 60 * 1000),
+        qrCode: 'MOB-HLX-001',
+      },
+      {
+        id: 'MOB-TRT-001',
+        name: 'Mobil Mitsubishi Strada Triton Double Cabin',
+        categoryId: '77777777-7777-7777-7777-777777777777',
+        assetTypeId: '30000000-0000-0000-0000-000000000001',
+        location: 'Kuala Enok',
+        lastStatus: 'Normal',
+        lastInspectedAt: fiveDaysAgo,
+        lastInspectedBy: '33333333-3333-3333-3333-333333333333',
+        nextInspectionDue: new Date(fiveDaysAgo.getTime() + 30 * 24 * 60 * 60 * 1000),
+        qrCode: 'MOB-TRT-001',
+      },
+      {
+        id: 'MOT-SPX-001',
+        name: 'Motor Honda Supra X 125 FI 2018',
+        categoryId: '77777777-7777-7777-7777-777777777777',
+        assetTypeId: '30000000-0000-0000-0000-000000000002',
+        location: 'Tembilahan',
+        lastStatus: 'Normal',
+        lastInspectedAt: fiveDaysAgo,
+        lastInspectedBy: '33333333-3333-3333-3333-333333333333',
+        nextInspectionDue: new Date(fiveDaysAgo.getTime() + 30 * 24 * 60 * 60 * 1000),
+        qrCode: 'MOT-SPX-001',
+      },
+      {
+        id: 'MOT-SPX-002',
+        name: 'Motor Honda Supra X 125 Helm In',
+        categoryId: '77777777-7777-7777-7777-777777777777',
+        assetTypeId: '30000000-0000-0000-0000-000000000002',
+        location: 'Pulau Kijang',
+        lastStatus: 'Normal',
+        lastInspectedAt: fiveDaysAgo,
+        lastInspectedBy: '33333333-3333-3333-3333-333333333333',
+        nextInspectionDue: new Date(fiveDaysAgo.getTime() + 30 * 24 * 60 * 60 * 1000),
+        qrCode: 'MOT-SPX-002',
       },
     ];
 

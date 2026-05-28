@@ -26,7 +26,7 @@ export const authConfig: NextAuthConfig = {
         return Response.redirect(new URL('/dashboard', nextUrl));
       }
 
-      if (isOnAdminCategories && role !== 'SUPER_ADMIN') {
+      if (isOnAdminCategories && role !== 'SUPER_ADMIN' && role !== 'ADMIN') {
         return Response.redirect(new URL('/dashboard', nextUrl));
       }
 
