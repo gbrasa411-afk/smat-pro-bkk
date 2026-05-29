@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Search,
@@ -11,6 +11,11 @@ import {
   MapPin,
   ChevronDown,
   ChevronRight,
+  Car,
+  Laptop,
+  Monitor,
+  Printer,
+  Tv,
 } from 'lucide-react';
 
 interface Asset {
@@ -51,6 +56,11 @@ function getCategoryIcon(iconName: string | null) {
   switch (iconName) {
     case 'FlaskConical': return FlaskConical;
     case 'HeartPulse': return HeartPulse;
+    case 'Car': return Car;
+    case 'Laptop': return Laptop;
+    case 'Monitor': return Monitor;
+    case 'Printer': return Printer;
+    case 'Tv': return Tv;
     default: return Package;
   }
 }
@@ -78,6 +88,17 @@ export default function InventoryClient({ categories, userRole }: { categories: 
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
     new Set(categories.map((c) => c.id))
   );
+
+  // Auto-expand category on active filter change
+  useEffect(() => {
+    if (activeFilter) {
+      setExpandedCategories((prev) => {
+        const next = new Set(prev);
+        next.add(activeFilter);
+        return next;
+      });
+    }
+  }, [activeFilter]);
 
   const toggleCategory = (id: string) => {
     setExpandedCategories((prev) => {

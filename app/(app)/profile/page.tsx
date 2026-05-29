@@ -42,6 +42,13 @@ export default async function ProfilePage() {
             </div>
             <ChevronRight size={18} className="text-gray-400" />
           </Link>
+          <Link href="/admin/categories" className="glass-card p-4 flex items-center justify-between hover:shadow-md transition-all active:scale-[0.98] block">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#00916E]/10 flex items-center justify-center"><Package size={18} className="text-[#00916E]" /></div>
+              <span className="font-bold text-gray-900 text-sm">Kelola Kategori Aset</span>
+            </div>
+            <ChevronRight size={18} className="text-gray-400" />
+          </Link>
           <Link href="/notifications" className="glass-card p-4 flex items-center justify-between hover:shadow-md transition-all active:scale-[0.98] block">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center"><Bell size={18} className="text-amber-500" /></div>
@@ -51,7 +58,7 @@ export default async function ProfilePage() {
           </Link>
         </div>
       )}
-
+ 
       {/* Super Admin Menu */}
       {role === 'SUPER_ADMIN' && (
         <div className="space-y-2">
@@ -60,13 +67,6 @@ export default async function ProfilePage() {
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center"><Users size={18} className="text-indigo-600" /></div>
               <span className="font-bold text-gray-900 text-sm">Manajemen Pengguna</span>
-            </div>
-            <ChevronRight size={18} className="text-gray-400" />
-          </Link>
-          <Link href="/admin/categories" className="glass-card p-4 flex items-center justify-between hover:shadow-md transition-all active:scale-[0.98] block">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center"><Package size={18} className="text-amber-600" /></div>
-              <span className="font-bold text-gray-900 text-sm">Kelola Kategori Aset</span>
             </div>
             <ChevronRight size={18} className="text-gray-400" />
           </Link>

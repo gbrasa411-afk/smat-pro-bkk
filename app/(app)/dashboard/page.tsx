@@ -105,7 +105,7 @@ export default async function DashboardPage() {
           <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mb-3">
             <HeartPulse className="w-5 h-5 text-indigo-600" />
           </div>
-          <p className="text-2xl font-black text-gray-900">2</p>
+          <p className="text-2xl font-black text-gray-900">{assetStats.categoriesCount || 0}</p>
           <p className="text-xs text-gray-500 font-medium mt-0.5">Kategori Aset</p>
         </div>
       </div>

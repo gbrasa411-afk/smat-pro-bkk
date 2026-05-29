@@ -126,15 +126,16 @@ export async function addAsset(formData: FormData) {
 }
 
 export async function getAssetStats() {
-  const total = await db.select({ count: sql<number>`count(*)` }).from(assets).where(eq(assets.isActive, true));
-  const needAction = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(assets)
-    .where(and(eq(assets.isActive, true), or(eq(assets.lastStatus, 'Perlu Perbaikan'), eq(assets.lastStatus, 'Rusak Berat'))));
+  const [total, needAction, totalCategories] = await Promise.all([
+    db.select({ count: sql<number>`count(*)` }).from(assets).where(eq(assets.isActive, true)),
+    db.select({ count: sql<number>`count(*)` }).from(assets).where(and(eq(assets.isActive, true), or(eq(assets.lastStatus, 'Perlu Perbaikan'), eq(assets.lastStatus, 'Rusak Berat')))),
+    db.select({ count: sql<number>`count(*)` }).from(categories),
+  ]);
 
   return {
     total: Number(total[0].count),
     needAction: Number(needAction[0].count),
+    categoriesCount: Number(totalCategories[0].count),
   };
 }
 

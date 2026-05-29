@@ -117,6 +117,40 @@ const CHECKLISTS: Record<string, ChecklistTemplateItem[]> = {
     { label: 'Rem depan dan belakang berfungsi pakem', category: 'Ban & Rem' },
     { label: 'STNK dan pajak kendaraan masih berlaku', category: 'Dokumen' },
   ],
+  'Komputer': [
+    { label: 'Sistem Operasi berlisensi aktif & legal', category: 'Sistem Operasi' },
+    { label: 'Sistem Operasi dan patch keamanan terupdate', category: 'Sistem Operasi' },
+    { label: 'Kapasitas RAM terdeteksi penuh dan sesuai spesifikasi', category: 'Hardware' },
+    { label: 'Kinerja RAM stabil tanpa ada gejala crash/bluescreen', category: 'Hardware' },
+    { label: 'Suhu pendingin CPU/Processor normal & kipas tidak bising', category: 'Hardware' },
+    { label: 'Kinerja CPU/Processor stabil di bawah beban kerja', category: 'Hardware' },
+    { label: 'Kapasitas sisa penyimpanan SSD/HDD mencukupi (>20% bebas)', category: 'Hardware' },
+    { label: 'Kondisi kesehatan disk penyimpanan (S.M.A.R.T status) baik', category: 'Hardware' },
+    { label: 'Layar monitor menyala normal tanpa dead pixel/distorsi', category: 'Periferal' },
+    { label: 'Keyboard dan Mouse berfungsi normal & responsif', category: 'Periferal' },
+    { label: 'Power Supply (PSU) stabil & kabel tidak ada yang terkelupas', category: 'Kelistrikan' },
+    { label: 'UPS (Backup Daya) berfungsi normal saat listrik padam', category: 'Kelistrikan' },
+    { label: 'Kabel LAN terhubung stabil atau Wi-Fi menangkap sinyal baik', category: 'Konektivitas' },
+    { label: 'Semua port USB pada casing berfungsi normal', category: 'Konektivitas' },
+  ],
+  'Laptop': [
+    { label: 'Sistem Operasi berlisensi aktif & terupdate', category: 'Sistem Operasi' },
+    { label: 'Kondisi fisik layar bersih dan tidak ada dead pixel', category: 'Fisik' },
+    { label: 'Keyboard & Touchpad berfungsi normal dan responsif', category: 'Fisik' },
+    { label: 'Baterai dapat menahan daya dengan baik (tidak bocor/kembung)', category: 'Baterai' },
+    { label: 'Charger/adaptor original berfungsi menyuplai daya dengan stabil', category: 'Baterai' },
+    { label: 'Suhu casing laptop normal (kipas sirkulasi bekerja baik)', category: 'Operasional' },
+    { label: 'Wi-Fi & Bluetooth menangkap sinyal dengan stabil', category: 'Konektivitas' },
+    { label: 'Semua port USB & HDMI berfungsi dengan normal', category: 'Konektivitas' },
+  ],
+  'Printer': [
+    { label: 'Tingkat tinta/toner terisi mencukupi', category: 'Ketersediaan' },
+    { label: 'Roller penarik kertas bersih & tidak menyebabkan paper-jam', category: 'Mekanik' },
+    { label: 'Kaca scanner bersih dari noda/debu (tipe 3-in-1)', category: 'Fisik' },
+    { label: 'Kabel power dan USB/LAN terhubung dengan rapi & kokoh', category: 'Kelistrikan' },
+    { label: 'Uji cetak dokumen bersih, tidak bergaris, dan jelas', category: 'Hasil Cetak' },
+    { label: 'Uji cetak warna presisi dan tidak pudar', category: 'Hasil Cetak' },
+  ],
 };
 
 async function seed() {
@@ -193,6 +227,13 @@ async function seed() {
         description: 'Kendaraan dinas operasional dan penunjang mobilitas kantor',
         sortOrder: 3,
       },
+      {
+        id: '88888888-8888-8888-8888-888888888888',
+        name: 'Teknologi Informasi & Komunikasi',
+        icon: 'Laptop',
+        description: 'Peralatan teknologi informasi dan komunikasi kantor',
+        sortOrder: 4,
+      },
     ];
 
     const insertedCategories = await db.insert(schema.categories).values(categoriesData).returning();
@@ -218,6 +259,11 @@ async function seed() {
       // Kendaraan
       { id: '30000000-0000-0000-0000-000000000001', categoryId: '77777777-7777-7777-7777-777777777777', name: 'Mobil', icon: 'Car' },
       { id: '30000000-0000-0000-0000-000000000002', categoryId: '77777777-7777-7777-7777-777777777777', name: 'Sepeda Motor', icon: 'Bike' },
+
+      // Teknologi Informasi & Komunikasi
+      { id: '40000000-0000-0000-0000-000000000001', categoryId: '88888888-8888-8888-8888-888888888888', name: 'Komputer', icon: 'Monitor' },
+      { id: '40000000-0000-0000-0000-000000000002', categoryId: '88888888-8888-8888-8888-888888888888', name: 'Laptop', icon: 'Laptop' },
+      { id: '40000000-0000-0000-0000-000000000003', categoryId: '88888888-8888-8888-8888-888888888888', name: 'Printer', icon: 'Printer' },
     ];
 
     const insertedAssetTypes = await db.insert(schema.assetTypes).values(assetTypesData).returning();
@@ -433,6 +479,42 @@ async function seed() {
         lastInspectedBy: '33333333-3333-3333-3333-333333333333',
         nextInspectionDue: new Date(fiveDaysAgo.getTime() + 30 * 24 * 60 * 60 * 1000),
         qrCode: 'MOT-SPX-002',
+      },
+      {
+        id: 'INF-KOM-001',
+        name: 'Komputer PC Dell OptiPlex 7090',
+        categoryId: '88888888-8888-8888-8888-888888888888',
+        assetTypeId: '40000000-0000-0000-0000-000000000001',
+        location: 'Tembilahan',
+        lastStatus: 'Normal',
+        lastInspectedAt: fiveDaysAgo,
+        lastInspectedBy: '33333333-3333-3333-3333-333333333333',
+        nextInspectionDue: new Date(fiveDaysAgo.getTime() + 30 * 24 * 60 * 60 * 1000),
+        qrCode: 'INF-KOM-001',
+      },
+      {
+        id: 'INF-LAP-001',
+        name: 'Laptop Lenovo ThinkPad L13 Gen 2',
+        categoryId: '88888888-8888-8888-8888-888888888888',
+        assetTypeId: '40000000-0000-0000-0000-000000000002',
+        location: 'Tembilahan',
+        lastStatus: 'Normal',
+        lastInspectedAt: fiveDaysAgo,
+        lastInspectedBy: '33333333-3333-3333-3333-333333333333',
+        nextInspectionDue: new Date(fiveDaysAgo.getTime() + 30 * 24 * 60 * 60 * 1000),
+        qrCode: 'INF-LAP-001',
+      },
+      {
+        id: 'INF-PRI-001',
+        name: 'Printer Epson EcoTank L3210',
+        categoryId: '88888888-8888-8888-8888-888888888888',
+        assetTypeId: '40000000-0000-0000-0000-000000000003',
+        location: 'Tembilahan',
+        lastStatus: 'Normal',
+        lastInspectedAt: fiveDaysAgo,
+        lastInspectedBy: '33333333-3333-3333-3333-333333333333',
+        nextInspectionDue: new Date(fiveDaysAgo.getTime() + 30 * 24 * 60 * 60 * 1000),
+        qrCode: 'INF-PRI-001',
       },
     ];
 
